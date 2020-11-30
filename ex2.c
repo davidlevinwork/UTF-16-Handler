@@ -1,13 +1,9 @@
-// 316554641 David Levin
-
 #include <stdio.h>
 #include <string.h>
 
 /*
  * isBigEndian function - determine endianness of the given file. If the second byte has the value -1 (FF) it means
  * that the file boom is big endian. Either it is little endian.
- * @param char* ch - first buffer to check the type of file.
- * @return - 1 if the file is big endian, 0 if the file is little endian (the way the bytes organized).
  */
 int isFileBigEndian(const char* ch)
 {
@@ -17,8 +13,6 @@ int isFileBigEndian(const char* ch)
 
 /*
  * swapBytes function - simple swap between two bytes.
- * @param char* byte1 - first char needed to swap
- * @param char* byte2 - second char needed to swap
  */
 void swapBytes(char* byte1, char* byte2)
 {
@@ -30,11 +24,6 @@ void swapBytes(char* byte1, char* byte2)
 /*
  * noFlags function - the function role is to create a file that is identical in its content - mean that the OS source
  * and destination OS is equal. The function will receive a flag, that will sign if we need to swap each two bytes
- * (there are cases when we will get the third flag which will be swap, so even that the OS are equal (src and dest),
- * we will have to take care about the swap situation).
- * @param srcFileName - name of the source file that we need to create a copy of it
- * @param destFileName - name of the copy file that we need to create
- * @param swap - 1 will identify the need for swap, 0 will identify that we dont need to do swap
  */
 void noFlags(char* srcFileName, char* destFileName, int swap)
 {
@@ -47,23 +36,19 @@ void noFlags(char* srcFileName, char* destFileName, int swap)
         size_t counts = 1;
         // open the source file in "wb" mode - write and prevent the standard library from translating a few characters
         FILE* destP = fopen(destFileName, "wb");
-        // read the data from the file until the file ends or an error occurs
         while ((counts = fread(buffer, sizeof(buffer), counts, srcP)) > 0)
         {
-            // write the data from the source file to the dest file - while the file have content or legal
-            if (swap) swapBytes(&buffer[0], &buffer[1]); // do swap if we need
+            if (swap) swapBytes(&buffer[0], &buffer[1]);
             fwrite(buffer, sizeof(buffer), counts, destP);
         }
-        fclose(destP); // close the dest file
+        fclose(destP); 
     }
-    fclose(srcP); // close the source file
+    fclose(srcP);
 }
 
 
 /*
  * newLine function - return the newLine char (refer to OS).
- * @param os - the string that refer to the OS system
- * @return - the function will return a char that will be the end line refers to the given OS argument
  */
 char newLine(char* os)
 {
@@ -77,29 +62,23 @@ char newLine(char* os)
  * windowsDest function - function role is to take care when the destination OS is windows, and the source is mac or
  * unix. It will check the given OS file (which is windows), and will create new file of the destination OS.
  * Moreover, it will take care of the case when we need to swap each two bytes (URF-16) - by the flag swap.
- * @param srcFileName - name of the source file that we need to create a copy of it
- * @param destFileName - name of the copy file that we need to create
- * @param srcFlag - identify the source OS
- * @param srcFlag - identify the destination OS
- * @param swap - 1 will identify the need for swap, 0 will identify that we dont need to do swap
  */
 void windowsDest(char* srcFileName, char* destFileName, char* srcFlag, char* destFlag, int swap)
 {
     FILE* srcP = fopen(srcFileName, "rb");
-    if(!srcP) return; // the file is invalid
+    if(!srcP) return; 
     FILE* destP = fopen(destFileName, "wb");
     char temp[2]; // temporary buffer
     char buffer[2]; // read 2 bytes (UTF-16)
     size_t counts = 1;
 
-    char srcOS = newLine(srcFlag); // create the new line char for the source
+    char srcOS = newLine(srcFlag); 
 
     fread(buffer, sizeof(buffer), counts, srcP); // read the first 2 bytes to determined big or little endian
     int bigEndian = isFileBigEndian(buffer);
-    if (swap) swapBytes(&buffer[0], &buffer[1]); // swap bytes if we need to
-    fwrite(buffer, sizeof(buffer), counts, destP); // write the buffer to the file
+    if (swap) swapBytes(&buffer[0], &buffer[1]); 
+    fwrite(buffer, sizeof(buffer), counts, destP); 
 
-    // read the data from the file until the file ends or an error occurs
     while ((counts = fread(buffer, sizeof(buffer), counts, srcP)) > 0)
     {
         if (bigEndian) // big endian file
@@ -109,16 +88,16 @@ void windowsDest(char* srcFileName, char* destFileName, char* srcFlag, char* des
                 buffer[0] = 0x00;
                 buffer[1] = 0x0d;
                 if (swap) swapBytes(&buffer[0], &buffer[1]);
-                fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                fwrite(buffer, sizeof(buffer), counts, destP); 
                 temp[0] = 0x00;
                 temp[1] = 0x0a;
                 if (swap) swapBytes(&temp[0], &temp[1]);
-                fwrite(temp, sizeof(temp), counts, destP); // write buffer to the destination file
+                fwrite(temp, sizeof(temp), counts, destP); 
             }
             else
             {
                 if (swap) swapBytes(&buffer[0], &buffer[1]);
-                fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                fwrite(buffer, sizeof(buffer), counts, destP);
             }
         }
         else // little endian file
@@ -128,16 +107,16 @@ void windowsDest(char* srcFileName, char* destFileName, char* srcFlag, char* des
                 buffer[1] = 0x00;
                 buffer[0] = 0x0d;
                 if (swap) swapBytes(&buffer[0], &buffer[1]);
-                fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                fwrite(buffer, sizeof(buffer), counts, destP); 
                 temp[1] = 0x00;
                 temp[0] = 0x0a;
                 if (swap) swapBytes(&temp[0], &temp[1]);
-                fwrite(temp, sizeof(temp), counts, destP); // write buffer to the destination file
+                fwrite(temp, sizeof(temp), counts, destP); 
             }
             else
             {
                 if (swap) swapBytes(&buffer[0], &buffer[1]);
-                fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                fwrite(buffer, sizeof(buffer), counts, destP); 
             }
         }
     }
@@ -149,29 +128,23 @@ void windowsDest(char* srcFileName, char* destFileName, char* srcFlag, char* des
  * windowsSrc function - function role is to take care when the source OS is windows, and the destination OS is mac or
  * unix. It will check the given OS (which is windows), and will create new file of the destination OS.
  * Moreover, it will take care of the case when we need to swap each two bytes (URF-16) - by the flag swap.
- * @param srcFileName - name of the source file that we need to create a copy of it
- * @param destFileName - name of the copy file that we need to create
- * @param srcFlag - identify the source OS
- * @param srcFlag - identify the destination OS
- * @param swap - 1 will identify the need for swap, 0 will identify that we dont need to do swap
  */
 void windowsSrc(char* srcFileName, char* destFileName, char* srcFlag, char* destFlag, int swap)
 {
     FILE* srcP = fopen(srcFileName, "rb");
-    if(!srcP) return; // the file is invalid
+    if(!srcP) return;
     FILE* destP = fopen(destFileName, "wb");
     char temp[2]; // temporary buffer
     char buffer[2]; // read 2 bytes (UTF-16)
     size_t counts = 1;
 
-    char destOS = newLine(destFlag); // create the new line char for the destination
+    char destOS = newLine(destFlag); 
 
     fread(buffer, sizeof(buffer), counts, srcP); // read the first 2 bytes to determined big or little endian
     int bigEndian = isFileBigEndian(buffer);
-    if (swap) swapBytes(&buffer[0], &buffer[1]); // swap bytes if we need to
-    fwrite(buffer, sizeof(buffer), counts, destP); // write the buffer to the file
+    if (swap) swapBytes(&buffer[0], &buffer[1]); 
+    fwrite(buffer, sizeof(buffer), counts, destP);
 
-    // read the data from the file until the file ends or an error occurs
     while ((counts = fread(buffer, sizeof(buffer), counts, srcP)) > 0)
     {
         if (bigEndian) // big endian file
@@ -179,12 +152,12 @@ void windowsSrc(char* srcFileName, char* destFileName, char* srcFlag, char* dest
             if ((buffer[0] == 0x00) && (buffer[1] == '\r')) // we got '\r'
             {
                 strcpy(temp, buffer); // save the buffer with '\r'
-                fread(buffer, sizeof(buffer), counts, srcP); // read the next buffer
+                fread(buffer, sizeof(buffer), counts, srcP);
                 if ((buffer[0] == 0x00) && (buffer[1] == '\n')) // we got '\n'
                 {
                     buffer[1] = destOS; // change the new line char
                     if (swap) swapBytes(&buffer[0], &buffer[1]);
-                    fwrite(buffer, sizeof(buffer), counts, destP); // write the buffer to the destination file
+                    fwrite(buffer, sizeof(buffer), counts, destP); 
                 }
                 else // we dont found '\n'
                 {
@@ -193,14 +166,14 @@ void windowsSrc(char* srcFileName, char* destFileName, char* srcFlag, char* dest
                         swapBytes(&temp[0], &temp[1]);
                         swapBytes(&buffer[0], &buffer[1]);
                     }
-                    fwrite(temp, sizeof(buffer), counts, destP); // write temp to the destination file
-                    fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                    fwrite(temp, sizeof(buffer), counts, destP); 
+                    fwrite(buffer, sizeof(buffer), counts, destP); 
                 }
             }
             else // we dont found '\r'
             {
                 if (swap) swapBytes(&buffer[0], &buffer[1]);
-                fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                fwrite(buffer, sizeof(buffer), counts, destP); 
             }
         }
         else
@@ -208,12 +181,12 @@ void windowsSrc(char* srcFileName, char* destFileName, char* srcFlag, char* dest
             if ((buffer[1] == 0x00) && (buffer[0] == '\r')) // we got '\r'
             {
                 strcpy(temp, buffer); // save the buffer with '\r'
-                fread(buffer, sizeof(buffer), counts, srcP); // read the next buffer
+                fread(buffer, sizeof(buffer), counts, srcP);
                 if ((buffer[1] == 0x00) && (buffer[0] == '\n')) // we got '\n'
                 {
                     buffer[0] = destOS; // change the new line char
                     if (swap) swapBytes(&buffer[0], &buffer[1]);
-                    fwrite(buffer, sizeof(buffer), counts, destP); // write the buffer to the destination file
+                    fwrite(buffer, sizeof(buffer), counts, destP); 
                 }
                 else // we dont found '\n'
                 {
@@ -222,14 +195,14 @@ void windowsSrc(char* srcFileName, char* destFileName, char* srcFlag, char* dest
                         swapBytes(&temp[0], &temp[1]);
                         swapBytes(&buffer[0], &buffer[1]);
                     }
-                    fwrite(temp, sizeof(buffer), counts, destP); // write temp to the destination file
-                    fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                    fwrite(temp, sizeof(buffer), counts, destP); 
+                    fwrite(buffer, sizeof(buffer), counts, destP); 
                 }
             }
             else // we dont found '\r'
             {
                 if (swap) swapBytes(&buffer[0], &buffer[1]);
-                fwrite(buffer, sizeof(buffer), counts, destP); // write buffer to the destination file
+                fwrite(buffer, sizeof(buffer), counts, destP);
             }
         }
     }
@@ -241,16 +214,11 @@ void windowsSrc(char* srcFileName, char* destFileName, char* srcFlag, char* dest
  * noWindows function - function role is to take care when teh source and the destination OS are not windows.
  * It will check the given OS, and will modify the file to the destination OS. Moreover, it will take care of the
  * case when we need to swap each two bytes (URF-16) - by the flag swap.
- * @param srcFileName - name of the source file that we need to create a copy of it
- * @param destFileName - name of the copy file that we need to create
- * @param srcFlag - identify the source OS
- * @param srcFlag - identify the destination OS
- * @param swap - 1 will identify the need for swap, 0 will identify that we dont need to do swap
  */
 void noWindows(char* srcFileName, char* destFileName, char* srcFlag, char* destFlag, int swap)
 {
     FILE* srcP = fopen(srcFileName, "rb");
-    if(!srcP) return; // the file is invalid
+    if(!srcP) return;
     FILE* destP = fopen(destFileName, "wb");
     char buffer[2]; // read 2 bytes (UTF-16)
     size_t counts = 1;
@@ -264,20 +232,19 @@ void noWindows(char* srcFileName, char* destFileName, char* srcFlag, char* destF
     if (swap) swapBytes(&buffer[0], &buffer[1]); // swap bytes if we need to
     fwrite(buffer, sizeof(buffer), counts, destP); // write the buffer to the file
 
-    // read the data from the file until the file ends or an error occurs
     while ((counts = fread(buffer, sizeof(buffer), counts, srcP)) > 0)
     {
         if (bigEndian) // big endian file
         {
             if ((buffer[0] == 0x00) && (buffer[1] == srcOS)) buffer[1] = destOS; // change the new line char
             if (swap) swapBytes(&buffer[0], &buffer[1]);
-            fwrite(buffer, sizeof(buffer), counts, destP); // write the buffer to the destination file
+            fwrite(buffer, sizeof(buffer), counts, destP);
         }
         else // little endian file
         {
             if ((buffer[1] == 0x00) && (buffer[0] == srcOS)) buffer[0] = destOS; // change the new line char
             if (swap) swapBytes(&buffer[0], &buffer[1]);
-            fwrite(buffer, sizeof(buffer), counts, destP); // write the buffer to the destination file
+            fwrite(buffer, sizeof(buffer), counts, destP);
         }
     }
     fclose(srcP);
