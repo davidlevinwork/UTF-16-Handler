@@ -8,7 +8,7 @@ The program supports 3 options (Multiple OS support (Mac, Unix, Windows)):
 
 After using `make` you can use the following command-line arguments:
   
-`source-file-name new-file-name [source-file-os-flag] [new-file-os-flag] [byte-order-flag]`
+> source-file-name | new-file-name | source-file-os-flag | new-file-os-flag | byte-order-flag]
 
 ### Parameters
 
@@ -18,6 +18,9 @@ Name | Meaning
 -----|-------
 `source-file-name` | .txt valid UTF-16 source file
 `new-file-name` | .txt file to be overriden with output data
-`source-file-os-flag` | `-mac`, `-unix`, `-windows` source file OS
-`new-file-os-flag` | `-mac`, `-unix`, `-windows` output file OS
-`byte-order-flag` | `-swap`, `-keep` indicator to switch Endians
+`source-file-os-flag` | source file OS
+`new-file-os-flag` | output file OS
+`byte-order-flag` | indicator to switch Endians
+
+Source & output file : `-mac`, `-unix`, `-windows` <br />
+Byte order flag : `-swap`, `-keep`
