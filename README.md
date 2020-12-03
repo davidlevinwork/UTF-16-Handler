@@ -8,7 +8,7 @@ The program supports 3 options (Multiple OS support (Mac, Unix, Windows)):
 
 After using `make` you can use the following command-line arguments:
   
-> source-file-name | new-file-name | source-file-os-flag | new-file-os-flag | byte-order-flag]
+> source-file-name |  new-file-name |  source-file-os-flag |  new-file-os-flag |  byte-order-flag
 
 ### Parameters
 
@@ -22,5 +22,5 @@ Name | Meaning
 `new-file-os-flag` | output file OS
 `byte-order-flag` | indicator to switch Endians
 
-Source & output file : `-mac`, `-unix`, `-windows` <br />
-Byte order flag : `-swap`, `-keep`
+- Source & output file : `-mac`, `-unix`, `-windows` <br />
+- Byte order flag : `-swap`, `-keep`
